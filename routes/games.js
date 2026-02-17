@@ -1,12 +1,11 @@
-import express from "express";
-import Game from "../models/Game.js";
-
+const express = require('express');
 const router = express.Router();
+const gameController = require('../controllers/games.controller');
 
-// Ejemplo: listar juegos
-router.get("/", async (req, res) => {
-  const games = await Game.find();
-  res.json(games);
-});
+router.post('/games', gameController.createGame);
+router.get('/games', gameController.getGames);
+router.get('/games/:id', gameController.getGameById);
+router.put('/games/:id', gameController.updateGame);
+router.delete('/games/:id', gameController.deleteGame);
 
-export default router;
+module.exports = router;
