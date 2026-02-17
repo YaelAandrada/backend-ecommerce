@@ -1,11 +1,13 @@
-const express = require('express');
+import express from "express";
+import { createGame, getGames, getGameById, updateGame, deleteGame, seedGames } from "../controllers/games.controller.js";
+
 const router = express.Router();
-const gameController = require('../controllers/games.controller');
 
-router.post('/games', gameController.createGame);
-router.get('/games', gameController.getGames);
-router.get('/games/:id', gameController.getGameById);
-router.put('/games/:id', gameController.updateGame);
-router.delete('/games/:id', gameController.deleteGame);
+router.post("/", createGame);
+router.get("/", getGames);
+router.get("/:id", getGameById);
+router.put("/:id", updateGame);
+router.delete("/:id", deleteGame);
+router.post("/seed", seedGames);
 
-module.exports = router;
+export default router;   //
