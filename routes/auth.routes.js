@@ -1,9 +1,19 @@
 import express from "express";
-import { register, login } from "../controllers/auth.controller.js";
+import { register, login } from "../controllers/auth.controllers.js";
+
 
 const router = express.Router();
 
+// Registro
 router.post("/register", register);
-//router.post("/login", login);
+
+// Login
+router.post("/login", login);
+
+// Editar usuario
+router.put("/users/:id", updateUser);
+
+// Eliminar usuario
+router.delete("/users/:id", deleteUser);
 
 export default router;
