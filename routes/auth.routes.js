@@ -11,9 +11,9 @@ router.post("/register", register);
 router.post("/login", login);
 
 // Editar usuario
-router.put("/users/:id", updateUser);
+// router.put("/users/:id", updateUser);
 
 // Eliminar usuario
-router.delete("/users/:id", deleteUser);
+// router.delete("/users/:id", deleteUser);
 
 export default router;
