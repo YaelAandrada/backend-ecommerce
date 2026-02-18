@@ -79,3 +79,25 @@ const reviewSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+//Para evitar reseñas duplicadas
+
+reviewSchema.index({ user: 1, game: 1 }, { unique: true });
+
+//Middleware, actualizar estadisticas del juego
+
+reviewSchema.pre('save', async function(next) {
+  if (this.isNew) {
+    const User = mongoose.model('User');
+    const user = await User.findById(this.user);
+
+    this.usersnaphot = {
+        username: user.username,
+        avatar: user.avatar,
+        gamesCount: user.purchasedGames.length
+    };
+  }
+  
+  next();
+
+});
