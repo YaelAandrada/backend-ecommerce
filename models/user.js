@@ -211,3 +211,39 @@ userSchema.methods.generateResetToken = function() {
   
   return resetToken;
 };
+
+// Método: Generar token para verificar email
+
+userSchema.methods.generateVerificationToken = function() {
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+  
+  this.emailVerificationToken = crypto
+    .createHash('sha256')
+    .update(verificationToken)
+    .digest('hex');
+  
+  return verificationToken;
+};
+
+// Método: Actualizar última actividad
+
+userSchema.methods.updateLastActive = function() {
+  this.lastActive = Date.now();
+  return this.save({ validateBeforeSave: false });
+};
+
+// Método estático: Buscar por email con password
+
+userSchema.statics.findByEmailWithPassword = function(email) {
+  return this.findOne({ email }).select('+password');
+};
+
+// Índices para mejorar performance
+
+userSchema.index({ email: 1 });
+userSchema.index({ username: 1 });
+userSchema.index({ 'stats.totalReviews': -1 });
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
