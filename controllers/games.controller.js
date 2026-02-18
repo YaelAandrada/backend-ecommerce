@@ -2,7 +2,7 @@ import Game from "../models/Game.js";
 import axios from "axios";
 
 const BASE_URL = "https://api.rawg.io/api";
-const API_KEY = "e04f9aa53b274227b9b4fbc1c0a72166"; // tu API key
+const API_KEY = "e04f9aa53b274227b9b4fbc1c0a72166"; // Api KEY 
 
 // Crear juego manual
 export const createGame = async (req, res) => {
