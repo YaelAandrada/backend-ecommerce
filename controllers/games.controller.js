@@ -1,7 +1,10 @@
 import Game from "../models/Game.js";
 import axios from "axios";
 
-// Crear juego
+const BASE_URL = "https://api.rawg.io/api";
+const API_KEY = "e04f9aa53b274227b9b4fbc1c0a72166"; // tu API key
+
+// Crear juego manual
 export const createGame = async (req, res) => {
   try {
     const newGame = new Game(req.body);
@@ -43,7 +46,7 @@ export const updateGame = async (req, res) => {
   }
 };
 
-// Borrar juego
+// Borrar juego específico
 export const deleteGame = async (req, res) => {
   try {
     await Game.findByIdAndDelete(req.params.id);
@@ -63,23 +66,30 @@ export const deleteAllGames = async (req, res) => {
   }
 };
 
-// Poblar con juegos reales desde FreeToGame API
+// Poblar con juegos reales desde RAWG API
 export const seedGames = async (req, res) => {
   try {
-    const resApi = await axios.get("https://www.freetogame.com/api/games");
-    const apiGames = resApi.data;
+    const resApi = await axios.get(`${BASE_URL}/games?key=${API_KEY}`);
+    const apiGames = resApi.data.results;
 
     const formatted = apiGames.slice(0, 30).map(g => ({
-      title: g.title,
-      genre: g.genre,
-      platform: g.platform,
-      releaseDate: g.release_date,
-      rating: 0,
-      imageUrl: g.thumbnail
+      rawgId: g.id,
+      title: g.name,
+      genre: g.genres.map(gen => gen.name).join(", "),
+      platform: g.platforms.map(p => p.platform.name).join(", "),
+      releaseDate: g.released,
+      rating: g.rating,
+      imageUrl: g.background_image,
+      description: g.description_raw || "",
+      developer: g.developers?.[0]?.name || "Unknown",
+      reviews: {
+        positive: g.ratings_count || 0,
+        negative: 0
+      }
     }));
 
     await Game.insertMany(formatted);
-    res.json({ message: "✅ Juegos importados desde FreeToGame", count: formatted.length });
+    res.json({ message: "✅ Juegos importados desde RAWG", count: formatted.length });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
