@@ -77,3 +77,37 @@ wishlistSchema.methods.addGame = async function(gameId, price = null) {
   return this;
 };
 
+//Quitar juego de la lista
+
+wishlistSchema.methods.removeGame = async function(gameId) {
+  this.items = this.items.filter(
+    item => item.game.toString() !== gameId.toString()
+  );
+  
+  await this.save();
+  return this;
+};
+
+//Generar token para compartir
+
+wishlistSchema.methods.generateShareToken = function() {
+  this.shareToken = crypto.randomBytes(16).toString('hex');
+  return this.shareToken;
+};
+
+//Crear lista de usuario
+
+wishlistSchema.statics.getOrCreate = async function(userId) {
+  let wishlist = await this.findOne({ user: userId }).populate('items.game');
+  
+  if (!wishlist) {
+    wishlist = await this.create({ user: userId, items: [] });
+  }
+
+    return wishlist;
+};
+
+const Wishlist = mongoose.model('Wishlist', wishlistSchema);
+
+module.exports = Wishlist;
+
