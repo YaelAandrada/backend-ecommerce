@@ -84,7 +84,6 @@ const reviewSchema = new mongoose.Schema({
 
 reviewSchema.index({ user: 1, game: 1 }, { unique: true });
 
-//Middleware, actualizar estadisticas del juego
 
 reviewSchema.pre('save', async function(next) {
   if (this.isNew) {
@@ -101,3 +100,42 @@ reviewSchema.pre('save', async function(next) {
   next();
 
 });
+
+//Middleware, actualizar estadisticas del juego
+
+reviewSchema.post('save', async function() {
+  const Game = mongoose.model('Game');
+  await Game.updateStats(this.game);
+});
+
+//Marcar como Util
+
+reviewSchema.statics.markHelpful = async function(reviewId, userId) {
+  const review = await this.findById(reviewId);
+  
+  if (!review) {
+    throw new Error('Reseña no encontrada');
+  }
+
+  //Se verifica si el usurio ya marcó, quitar voto - agregar voto 
+
+   const alreadyHelpful = review.helpful.users.includes(userId);
+  
+  if (alreadyHelpful) {
+    
+    review.helpful.users = review.helpful.users.filter(
+      id => id.toString() !== userId.toString()
+    );
+    review.helpful.count = review.helpful.users.length;
+  } else { 
+    review.helpful.users.push(userId);
+    review.helpful.count = review.helpful.users.length;
+  }
+  
+  await review.save();
+  return review;
+};
+
+const Review = mongoose.model('Review', reviewSchema);
+
+module.exports = Review;
