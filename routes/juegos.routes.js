@@ -20,7 +20,7 @@ router.delete("/reset", deleteAllGames); // Borrar todos los juegos
 router.delete("/:id", deleteGame);   // Borrar juego
 
 
-// Ruta especial para poblar con juegos reales desde FreeToGame API
+
 router.post("/seed", seedGames);
 
 export default router;
