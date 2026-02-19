@@ -16,7 +16,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
   "bugs": {
     "url": "https://github.com/YaelAandrada/backend-ecommerce/issues"
   },
@@ -33,5 +32,4 @@
     "morgan": "^1.10.1",
     "nodemon": "^3.1.11"
   }
-  }
-
+}

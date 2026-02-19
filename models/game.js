@@ -1,77 +1,83 @@
-const mongoose = requier('mongoose');
+import mongoose from "mongoose";
 
-const gamrSchema = new mongoose.Schema({
+const gameSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: [true, 'El nombre es obligatorio'],
-        trim: true
+      type: String,
+      required: [true, "El nombre es obligatorio"],
+      trim: true
     },
 
-    prince: {
-        type: Number,
-        required: [true, 'El precio es obligatorio'],
-        min: [0, 'El precio no puede ser negativo']
+    price: { 
+      type: Number,
+      required: [true, "El precio es obligatorio"],
+      min: [0, "El precio no puede ser negativo"]
     },
 
     category: {
-        type: String,
-        required: true,
-        enum: ['Acción', 'Aventura', 'RPG', 'Deportes', 'Estrategia', 'Simulación']
-  },
-    
+      type: String,
+      required: true,
+      enum: ["Acción", "Aventura", "RPG", "Deportes", "Estrategia", "Simulación"]
+    },
+
     image: {
-    type: String,
-    required: true
-  },
-
-   description: {
-    type: String,
-    required: true
-  },
-
-   developer: String,
-  stats: {
-    averageRating: {
-      type: Number,
-      default: 0,
-      min: 0,
-      max: 5
+      type: String,
+      required: true
     },
 
-     totalReviews: {
-      type: Number,
-      default: 0
+    description: {
+      type: String,
+      required: true
     },
 
-     totalWishlist: {
-      type: Number,
-      default: 0
+    developer: String,
+
+    stats: {
+      averageRating: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5
+      },
+
+      totalReviews: {
+        type: Number,
+        default: 0
+      },
+
+      totalWishlist: {
+        type: Number,
+        default: 0
+      }
     }
+  },
+  {
+    timestamps: true
   }
-}, {
-  timestamps: true
-});
+);
 
-//Actualizar Estadistica
+// ================= ACTUALIZAR ESTADÍSTICAS =================
+gameSchema.statics.updateStats = async function (gameId) {
+  const Review = mongoose.model("Review");
 
-gameSchema.statics.updateStats = async function(gameId) {
-  const Review = mongoose.model('Review');
-  
   const stats = await Review.aggregate([
     { $match: { game: gameId } },
-    { $group: {
-      _id: '$game',
-      averageRating: { $avg: '$rating' },
-      totalReviews: { $sum: 1 }
-    }}
+    {
+      $group: {
+        _id: "$game",
+        averageRating: { $avg: "$rating" },
+        totalReviews: { $sum: 1 }
+      }
+    }
   ]);
 
-    if (stats.length > 0) {
+  if (stats.length > 0) {
     await this.findByIdAndUpdate(gameId, {
-      'stats.averageRating': stats[0].averageRating,
-      'stats.totalReviews': stats[0].totalReviews
+      "stats.averageRating": stats[0].averageRating,
+      "stats.totalReviews": stats[0].totalReviews
     });
   }
 };
 
-module.exports = mongoose.model('Game', gameSchema);
+// ================= EXPORTAR MODELO =================
+export default mongoose.model("Game", gameSchema);
