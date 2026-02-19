@@ -18,7 +18,11 @@ app.use(morgan("dev"));
 
 // ================= RUTAS =================
 app.use("/api/juegos", juegosRoutes);
-app.use("/api/auth", authRoutes);
+
+// Conexión a MongoDB 
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB conectado"))
+  .catch(err => console.error("❌ Error de conexión:", err));
 
 // Ruta de prueba
 app.get("/", (req, res) => {
