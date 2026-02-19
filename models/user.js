@@ -5,14 +5,15 @@ import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
   {
+    // ================= DATOS BÁSICOS =================
     username: {
       type: String,
       required: [true, "El nombre de usuario es obligatorio"],
       unique: true,
       trim: true,
-      minlength: [3, "El nombre de usuario debe tener al menos 3 caracteres"],
-      maxlength: [30, "El nombre de usuario no puede tener más de 30 caracteres"],
-      match: [/^[a-zA-Z0-9_]+$/, "El username solo puede contener letras, números y guión bajo"]
+      minlength: 3,
+      maxlength: 30,
+      match: [/^[a-zA-Z0-9_]+$/, "Solo letras, números y _"]
     },
 
     email: {
@@ -20,14 +21,13 @@ const userSchema = new mongoose.Schema(
       required: [true, "El email es obligatorio"],
       unique: true,
       lowercase: true,
-      trim: true,
-      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Email inválido"]
+      trim: true
     },
 
     password: {
       type: String,
       required: [true, "La contraseña es obligatoria"],
-      minlength: [6, "La contraseña debe tener al menos 6 caracteres"],
+      minlength: 6,
       select: false
     },
 
@@ -37,115 +37,75 @@ const userSchema = new mongoose.Schema(
       default: "user"
     },
 
+    // ================= PERFIL =================
     avatar: {
       type: String,
       default: "https://res.cloudinary.com/tu-cloud/image/upload/v1/default-avatar.png"
     },
 
-    avatarPublicId: {
-      type: String,
-      default: null
-    },
-
     bio: {
       type: String,
-      maxlength: [500, "La biografía no puede tener más de 500 caracteres"],
+      maxlength: 500,
       default: ""
     },
 
-    // Estadísticas
+    // ================= ESTADÍSTICAS =================
     stats: {
       totalGames: { type: Number, default: 0 },
       totalReviews: { type: Number, default: 0 },
-      averageRating: { type: Number, default: 0, min: 0, max: 5 },
-      memberSince: { type: Date, default: Date.now }
+      averageRating: { type: Number, default: 0 }
     },
 
-    // Configuración
+    // ================= CONFIG =================
     settings: {
       emailNotifications: { type: Boolean, default: true },
       darkMode: { type: Boolean, default: false },
-      language: { type: String, enum: ["es", "en"], default: "es" }
+      language: { type: String, default: "es" }
     },
 
-    // Juegos comprados
+    // ================= JUEGOS COMPRADOS =================
     purchasedGames: [
       {
-        game: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Game"
-        },
-        purchasedAt: {
-          type: Date,
-          default: Date.now
-        },
+        game: { type: mongoose.Schema.Types.ObjectId, ref: "Game" },
+        purchasedAt: { type: Date, default: Date.now },
         price: Number
       }
     ],
 
-    // Reset password
+    // ================= RESET PASSWORD =================
     resetPasswordToken: String,
     resetPasswordExpire: Date,
 
-    // Email verification
-    emailVerified: {
-      type: Boolean,
-      default: false
-    },
+    // ================= VERIFICACIÓN EMAIL =================
+    emailVerified: { type: Boolean, default: false },
     emailVerificationToken: String,
 
-    // Última actividad
-    lastActive: {
-      type: Date,
-      default: Date.now
-    }
+    // ================= ÚLTIMA ACTIVIDAD =================
+    lastActive: { type: Date, default: Date.now }
   },
   {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
+    timestamps: true
   }
 );
 
-// ================= VIRTUALS =================
-
-userSchema.virtual("wishlist", {
-  ref: "Wishlist",
-  localField: "_id",
-  foreignField: "user"
-});
-
-userSchema.virtual("reviews", {
-  ref: "Review",
-  localField: "_id",
-  foreignField: "user"
-});
-
 // ================= HASH PASSWORD =================
-
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  const salt = await bcrypt.genSalt(12);
+  const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
 // ================= MÉTODOS =================
-
-userSchema.methods.comparePassword = function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
+userSchema.methods.comparePassword = function (password) {
+  return bcrypt.compare(password, this.password);
 };
 
 userSchema.methods.generateAuthToken = function () {
   return jwt.sign(
-    {
-      id: this._id,
-      username: this.username,
-      role: this.role,
-      email: this.email
-    },
+    { id: this._id, role: this.role },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE }
+    { expiresIn: "7d" }
   );
 };
 
@@ -158,37 +118,9 @@ userSchema.methods.generateResetToken = function () {
     .digest("hex");
 
   this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
-
   return resetToken;
 };
 
-userSchema.methods.generateVerificationToken = function () {
-  const token = crypto.randomBytes(32).toString("hex");
-
-  this.emailVerificationToken = crypto
-    .createHash("sha256")
-    .update(token)
-    .digest("hex");
-
-  return token;
-};
-
-userSchema.methods.updateLastActive = function () {
-  this.lastActive = Date.now();
-  return this.save({ validateBeforeSave: false });
-};
-
-// ================= STATIC =================
-
-userSchema.statics.findByEmailWithPassword = function (email) {
-  return this.findOne({ email }).select("+password");
-};
-
-// ================= ÍNDICES =================
-
-// unique ya crea índices en email y username
-userSchema.index({ "stats.totalReviews": -1 });
-
-// ================= EXPORT =================
-
-export default mongoose.model("User", userSchema);
+// ================= EXPORT SEGURO (ANTI DUPLICADOS) =================
+const User = mongoose.models.User || mongoose.model("User", userSchema);
+export default User;

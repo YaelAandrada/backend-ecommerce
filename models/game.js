@@ -2,53 +2,47 @@ import mongoose from "mongoose";
 
 const gameSchema = new mongoose.Schema(
   {
+    // ================= RAWG API DATA =================
+    rawgId: { type: Number, unique: true },
+    title: { type: String, required: true }, // nombre principal (RAWG)
+    description: String,
+    imageUrl: String,
+    releaseDate: String,
+    platform: [String],
+    category: [String], // géneros RAWG
+
+    // ================= TIENDA LOCAL =================
     name: {
       type: String,
-      required: [true, "El nombre es obligatorio"],
       trim: true
     },
 
-    price: { 
+    price: {
       type: Number,
-      required: [true, "El precio es obligatorio"],
-      min: [0, "El precio no puede ser negativo"]
+      default: 0,
+      min: 0
     },
 
-    category: {
-      type: String,
-      required: true,
-      enum: ["Acción", "Aventura", "RPG", "Deportes", "Estrategia", "Simulación"]
-    },
-
-    image: {
-      type: String,
-      required: true
-    },
-
-    description: {
-      type: String,
-      required: true
-    },
-
+    image: String, // imagen local (si no usás RAWG)
     developer: String,
 
+    // ================= REVIEWS & STATS =================
+    rating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5
+    },
+
+    reviews: {
+      positive: { type: Number, default: 0 },
+      negative: { type: Number, default: 0 }
+    },
+
     stats: {
-      averageRating: {
-        type: Number,
-        default: 0,
-        min: 0,
-        max: 5
-      },
-
-      totalReviews: {
-        type: Number,
-        default: 0
-      },
-
-      totalWishlist: {
-        type: Number,
-        default: 0
-      }
+      averageRating: { type: Number, default: 0, min: 0, max: 5 },
+      totalReviews: { type: Number, default: 0 },
+      totalWishlist: { type: Number, default: 0 }
     }
   },
   {
@@ -79,5 +73,6 @@ gameSchema.statics.updateStats = async function (gameId) {
   }
 };
 
-// ================= EXPORTAR MODELO =================
-export default mongoose.model("Game", gameSchema);
+// ================= EXPORT SEGURO =================
+const Game = mongoose.models.Game || mongoose.model("Game", gameSchema);
+export default Game;
