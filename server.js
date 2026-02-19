@@ -45,7 +45,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 
 
-mongoose.connect("mongodb+srv://ruiz_db_user:user123@cluster0.zfdkhin.mongodb.net/ecommerce")
+mongoose.connect("mongodb+srv://nahueldiazquesada_db_user:Melekapo12@rollingtech.8cylx1m.mongodb.net/")
   .then(() => console.log("MongoDB Atlas conectado"))
   .catch((err) => console.log("Error MongoDB:", err));
 
