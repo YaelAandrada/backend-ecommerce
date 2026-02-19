@@ -87,7 +87,7 @@ exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // Buscar usuario incluyendo password
+    // Buscar usuario incluyendo contraseña
     
     const user = await User.findOne({ email }).select('+password');
 
