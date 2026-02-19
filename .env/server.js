@@ -1,8 +1,8 @@
-// Server
+/* Server
 PORT=5000
 NODE_ENV=development
 
-// Database
+ Database
 MONGODB_URI=mongodb+srv://ruiz_db_user:<user123>@cluster0.zfdkhin.mongodb.net
 
 // Email (Nodemailer)
@@ -102,4 +102,4 @@ process.on('unhandledRejection', (err) => {
   console.log(`Error: ${err.message}`.red);
   server.close(() => process.exit(1));
 });
-}
+}/*
