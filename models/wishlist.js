@@ -1,113 +1,112 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
+import crypto from "crypto";
 
-const wishlistSchema = new mongoose.Schema({
-
-    user:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    unique: true  
-    },
-
-    items: [{
-      game: {
+const wishlistSchema = new mongoose.Schema(
+  {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Game',
-      required: true
+      ref: "User",
+      required: true,
+      unique: true
     },
 
-    addedAt: {
-      type: Date,
-      default: Date.now
-    },
-    
-    price: {
-      type: Number,
-      min: 0
-    },
-    
-    //Se notifica al usuario cuando el precio baje
+    items: [
+      {
+        game: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Game",
+          required: true
+        },
 
-    notify: {
+        addedAt: {
+          type: Date,
+          default: Date.now
+        },
+
+        price: {
+          type: Number,
+          min: 0
+        },
+
+        // Notificar cuando baje el precio
+        notify: {
+          type: Boolean,
+          default: false
+        }
+      }
+    ],
+
+    isPublic: {
       type: Boolean,
       default: false
+    },
+
+    shareToken: {
+      type: String,
+      unique: true,
+      sparse: true
     }
-}],
-
-isPublic: {
-    type: Boolean,
-    default: false
   },
- 
-  shareToken: {
-    type: String,
-    unique: true,
-    sparse: true
-  }
-}, {
+  { timestamps: true }
+);
 
- timestamps: true
-});
+/* ================= INDEX ================= */
 
-// Para evitar duplicados
+// Evitar duplicados dentro del array
+wishlistSchema.index(
+  { user: 1, "items.game": 1 },
+  { unique: true, sparse: true }
+);
 
-wishlistSchema.index({ 'items.game': 1 }, { unique: true, sparse: true });
+/* ================= METHODS ================= */
 
-//Agrgar juego a la lista
-
-wishlistSchema.methods.addGame = async function(gameId, price = null) {
-  
-    // Verificar si ya existe
-  
+// Agregar juego
+wishlistSchema.methods.addGame = async function (gameId, price = null) {
   const exists = this.items.some(
-    item => item.game.toString() === gameId.toString()
+    (item) => item.game.toString() === gameId.toString()
   );
-  
+
   if (exists) {
-    throw new Error('El juego ya está en la lista de deseos');
+    throw new Error("El juego ya está en la lista de deseos");
   }
-  
+
   this.items.push({
     game: gameId,
     price,
     addedAt: new Date()
   });
-  
+
   await this.save();
   return this;
 };
 
-//Quitar juego de la lista
-
-wishlistSchema.methods.removeGame = async function(gameId) {
+// Quitar juego
+wishlistSchema.methods.removeGame = async function (gameId) {
   this.items = this.items.filter(
-    item => item.game.toString() !== gameId.toString()
+    (item) => item.game.toString() !== gameId.toString()
   );
-  
+
   await this.save();
   return this;
 };
 
-//Generar token para compartir
-
-wishlistSchema.methods.generateShareToken = function() {
-  this.shareToken = crypto.randomBytes(16).toString('hex');
+// Generar token compartido
+wishlistSchema.methods.generateShareToken = function () {
+  this.shareToken = crypto.randomBytes(16).toString("hex");
   return this.shareToken;
 };
 
-//Crear lista de usuario
+// Obtener o crear wishlist
+wishlistSchema.statics.getOrCreate = async function (userId) {
+  let wishlist = await this.findOne({ user: userId }).populate("items.game");
 
-wishlistSchema.statics.getOrCreate = async function(userId) {
-  let wishlist = await this.findOne({ user: userId }).populate('items.game');
-  
   if (!wishlist) {
     wishlist = await this.create({ user: userId, items: [] });
   }
 
-    return wishlist;
+  return wishlist;
 };
 
-const Wishlist = mongoose.model('Wishlist', wishlistSchema);
+const Wishlist = mongoose.model("Wishlist", wishlistSchema);
 
-module.exports = Wishlist;
-
+export default Wishlist;

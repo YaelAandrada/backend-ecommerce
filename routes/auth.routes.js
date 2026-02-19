@@ -1,19 +1,36 @@
 import express from "express";
-import { register, login } from "../controllers/auth.controllers.js";
 
+import {
+  register,
+  login,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
+  logout,
+  getProfile
+} from "../controllers/auth.controller.js";
+
+import { validateRegister } from "../middlewares/validation.js";
+import { protect } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-// Registro
-router.post("/register", register);
+/* ================= PUBLIC ROUTES ================= */
 
-// Login
+router.post("/register", validateRegister, register);
+
 router.post("/login", login);
 
-// Editar usuario
-// router.put("/users/:id", updateUser);
+router.get("/verify-email/:token", verifyEmail);
 
-// Eliminar usuario
-// router.delete("/users/:id", deleteUser);
+router.post("/forgot-password", forgotPassword);
+
+router.post("/reset-password/:token", resetPassword);
+
+/* ================= PROTECTED ROUTES ================= */
+
+router.post("/logout", protect, logout);
+
+router.get("/me", protect, getProfile);
 
 export default router;

@@ -11,41 +11,31 @@ dotenv.config();
 
 const app = express();
 
-// ================= MIDDLEWARES =================
+/* ================= MIDDLEWARES ================= */
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
-// ================= RUTAS =================
-app.use("/api/juegos", juegosRoutes);
-
-
-// Ruta de prueba
+/* ================= RUTAS ================= */
 app.get("/", (req, res) => {
   res.send("Servidor funcionando 🚀");
 });
 
-// ================= CONEXIÓN MONGODB =================
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB conectado correctamente"))
-  .catch(err => console.error("❌ Error MongoDB:", err));
+app.use("/api/auth", authRoutes);
+app.use("/api/juegos", juegosRoutes);
 
-// ================= PUERTO =================
+/* ================= CONEXIÓN MONGODB ================= */
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB conectado correctamente"))
+  .catch((err) => {
+    console.error("❌ Error conectando MongoDB:", err);
+    process.exit(1);
+  });
+
+/* ================= PUERTO ================= */
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
-
-
-
-app.use(cors());
-app.use(express.json());
-
-app.use("/api/auth", authRoutes);
-
-
-mongoose.connect("mongodb+srv://nahueldiazquesada_db_user:Melekapo12@rollingtech.8cylx1m.mongodb.net/")
-  .then(() => console.log("MongoDB Atlas conectado"))
-  .catch((err) => console.log("Error MongoDB:", err));
-

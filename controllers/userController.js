@@ -3,7 +3,7 @@ const Review = require('../models/Review');
 const Wishlist = require('../models/Wishlist');
 const Game = require('../models/Game');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/cloudinary');
-const { sendEmail } = require('../utils/emailService');
+const { sendEmail } = require('../utils/email');
 const crypto = require('crypto');
 
 
