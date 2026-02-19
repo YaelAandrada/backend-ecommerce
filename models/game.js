@@ -65,4 +65,13 @@ gameSchema.statics.updateStats = async function(gameId) {
       totalReviews: { $sum: 1 }
     }}
   ]);
-  
+
+    if (stats.length > 0) {
+    await this.findByIdAndUpdate(gameId, {
+      'stats.averageRating': stats[0].averageRating,
+      'stats.totalReviews': stats[0].totalReviews
+    });
+  }
+};
+
+module.exports = mongoose.model('Game', gameSchema);
