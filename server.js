@@ -19,10 +19,6 @@ app.use(morgan("dev"));
 // ================= RUTAS =================
 app.use("/api/juegos", juegosRoutes);
 
-// Conexión a MongoDB 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB conectado"))
-  .catch(err => console.error("❌ Error de conexión:", err));
 
 // Ruta de prueba
 app.get("/", (req, res) => {
@@ -53,6 +49,3 @@ mongoose.connect("mongodb+srv://nahueldiazquesada_db_user:Melekapo12@rollingtech
   .then(() => console.log("MongoDB Atlas conectado"))
   .catch((err) => console.log("Error MongoDB:", err));
 
-app.listen(3000, () => {
-  console.log("Backend corriendo en puerto 3000");
-});
