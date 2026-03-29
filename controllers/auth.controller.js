@@ -37,7 +37,7 @@ export const register = async (req, res, next) => {
     });
 
     // Generar token verificación
-    const verificationToken = user.generateVerificationToken();
+    const verificationToken = user.generateEmailVerificationToken();
     await user.save();
 
     // Enviar email bienvenida

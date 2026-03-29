@@ -1,4 +1,6 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config(); 
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -9,6 +11,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS
   }
 });
+
+console.log("EMAIL_HOST:", process.env.EMAIL_HOST);
 
 /* ================= VERIFY CONNECTION ================= */
 transporter.verify((error) => {
@@ -21,6 +25,7 @@ transporter.verify((error) => {
 
 /* ================= SEND EMAIL ================= */
 export const sendEmail = async (options) => {
+  
   try {
     const mailOptions = {
       from: `"GamerStore" <${process.env.EMAIL_USER}>`,

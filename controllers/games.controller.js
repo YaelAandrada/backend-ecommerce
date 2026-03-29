@@ -1,4 +1,4 @@
-import Game from "../models/Game.js";
+import Game from "../models/game.js";
 import axios from "axios";
 
 const BASE_URL = "https://api.rawg.io/api";

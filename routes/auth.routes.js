@@ -10,6 +10,8 @@ import {
   getProfile
 } from "../controllers/auth.controller.js";
 
+import { updateUser, deleteUser, getId, getAllUsers} from "../controllers/user.controllers.js";
+
 import { validateRegister } from "../middlewares/validation.js";
 import { protect } from "../middlewares/auth.middleware.js";
 
@@ -32,5 +34,12 @@ router.post("/reset-password/:token", resetPassword);
 router.post("/logout", protect, logout);
 
 router.get("/me", protect, getProfile);
+
+/* ================= PRIVATE ADMIN ROUTES ================= */
+
+router.delete("/delete/:id", deleteUser);
+router.post("/update/:id", updateUser);
+router.get("/get/", getId);
+router.get("/users", getAllUsers);
 
 export default router;

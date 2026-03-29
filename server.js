@@ -1,13 +1,13 @@
 import express from "express";
+import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import morgan from "morgan";
-import dotenv from "dotenv";
+dotenv.config();
 
 import juegosRoutes from "./routes/juegos.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 
-dotenv.config();
 
 const app = express();
 
@@ -39,3 +39,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
+
+console.log("EMAIL_HOST:", process.env.EMAIL_HOST);

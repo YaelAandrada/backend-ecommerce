@@ -89,11 +89,11 @@ const userSchema = new mongoose.Schema(
 );
 
 // ================= HASH PASSWORD =================
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 // ================= MÉTODOS =================
@@ -102,11 +102,33 @@ userSchema.methods.comparePassword = function (password) {
 };
 
 userSchema.methods.generateAuthToken = function () {
+  if(!process.env.JWT_SECRET){
+    throw new Error ('JWT_SECRET no esta definido');
+  }
+
   return jwt.sign(
     { id: this._id, role: this.role },
     process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
+};
+
+
+// ================= VERIFICACIÓN EMAIL =================
+
+userSchema.methods.generateEmailVerificationToken = function () {
+  return jwt.sign(
+    { id: this._id },
+    process.env.JWT_SECRET,
+    {expiresIn: "1d"}
+  )
+}
+
+//================ ACTUALIZAR ULTIMA VEZ ================
+
+userSchema.methods.updateLastActive = async function () {
+  this.lastActive = new Date();
+  await this.save();
 };
 
 userSchema.methods.generateResetToken = function () {
